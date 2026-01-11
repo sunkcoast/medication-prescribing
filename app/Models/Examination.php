@@ -12,6 +12,7 @@ class Examination extends Model
     protected $fillable = [
         'doctor_id',
         'patient_id',
+        'status',
         'exam_time',
         'height',
         'weight',
