@@ -3,9 +3,10 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
-use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
+use App\Models\User;
+use App\Models\Patient;
 
 class RoleUserSeeder extends Seeder
 {
@@ -15,17 +16,19 @@ class RoleUserSeeder extends Seeder
     public function run(): void
     {
         User::create([
-            'name' => 'Dr. Delta',
-            'email' => 'doctor@deltasurya.com',
+            'name' => 'dr. REZA RAHMAN RAMADHANI, Sp.OT',
+            'email' => 'dokter@test.com',
             'password' => Hash::make('password'),
             'role' => 'doctor',
         ]);
     
         User::create([
-            'name' => 'Apoteker Surya',
-            'email' => 'pharmacist@deltasurya.com',
+            'name' => 'Gustin Wahyu Diyanti',
+            'email' => 'apoteker@test.com',
             'password' => Hash::make('password'),
             'role' => 'pharmacist',
         ]);
+
+        Patient::factory()->count(10)->create();
     }
 }

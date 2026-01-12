@@ -15,6 +15,22 @@
                     <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                         {{ __('Dashboard') }}
                     </x-nav-link>
+
+                    @if(auth()->user()->role === 'doctor')
+                        <x-nav-link :href="route('doctor.examinations')" :active="request()->routeIs('doctor.examinations')">
+                            {{ __('Examination Input') }}
+                        </x-nav-link>
+
+                        <x-nav-link :href="route('doctor.logs.index')" :active="request()->routeIs('doctor.logs.index')">
+                            {{ __('Activity Logging') }}
+                        </x-nav-link>
+                    @endif
+
+                    @if(auth()->user()->role === 'pharmacist')
+                        <x-nav-link :href="route('pharmacist.prescriptions.index')" :active="request()->is('pharmacist/*')">
+                            {{ __('Prescription Service') }}
+                        </x-nav-link>
+                    @endif
                 </div>
             </div>
 
@@ -70,6 +86,18 @@
             <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                 {{ __('Dashboard') }}
             </x-responsive-nav-link>
+
+            @if(auth()->user()->role === 'doctor')
+                <x-responsive-nav-link :href="route('doctor.examinations')" :active="request()->is('doctor/*')">
+                    {{ __('Input Pemeriksaan') }}
+                </x-responsive-nav-link>
+            @endif
+
+            @if(auth()->user()->role === 'pharmacist')
+                <x-responsive-nav-link :href="route('pharmacist.prescriptions.index')" :active="request()->is('pharmacist/*')">
+                    {{ __('Prescription Queue') }}
+                </x-responsive-nav-link>
+            @endif
         </div>
 
         <!-- Responsive Settings Options -->

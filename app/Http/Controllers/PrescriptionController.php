@@ -2,16 +2,20 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Examination;
-use App\Models\Prescription;
-use App\Services\MedicineApiService;
-use App\Services\MedicinePricingService;
+use RuntimeException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use RuntimeException;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use App\Models\Examination;
+use App\Models\Prescription;
+use App\Models\PrescriptionItem;
+use App\Services\MedicineApiService;
+use App\Services\MedicinePricingService;
 
 class PrescriptionController extends Controller
 {
+    use AuthorizesRequests;
     protected $medicineApi;
     protected $pricingService;
 
@@ -30,7 +34,7 @@ class PrescriptionController extends Controller
         ]);
 
         $examination = Examination::findOrFail($validated['examination_id']);
-        $this->ensurePrescriptionCanBeCreated($examination);
+        
 
         $prescription = Prescription::create([
             'examination_id' => $examination->id,
@@ -39,54 +43,101 @@ class PrescriptionController extends Controller
             'examined_at'    => $examination->examined_at, 
         ]);
 
-        return response()->json([
-            'message' => 'Prescription created successfully',
-            'data'    => $prescription,
-        ], 201);
+        return redirect()->route('doctor.prescriptions.edit', $prescription->id)
+                        ->with('success', 'Prescription created. Please add medicines.');
     }
 
-    public function addItem(Request $request, Prescription $prescription)
+    public function edit($id)
+    {
+        $prescription = Prescription::with(['examination.patient', 'items'])->findOrFail($id);
+        
+        try {
+            $medicines = $this->medicineApi->getMedicines(); 
+
+            return view('doctor.prescriptions.edit', compact('prescription', 'medicines'));
+        } catch (\Exception $e) {
+            return view('doctor.prescriptions.edit', compact('prescription'))
+                ->withErrors(['api_error' => 'Could not fetch medicines from API: ' . $e->getMessage()]);
+        }
+    }
+
+    public function addItem(Request $request, $prescriptionId, MedicineApiService $apiService, MedicinePricingService $pricingService)
     {
         $request->validate([
-            'medicine_id'   => 'required|string',
-            'medicine_name' => 'required|string',
-            'quantity'      => 'required|integer|min:1',
+            'medicine_id' => 'required|string',
+            'quantity' => 'required|integer|min:1',
         ]);
 
+        $prescription = Prescription::with('examination')->findOrFail($prescriptionId);
+
         try {
-            $prices = $this->medicineApi->getMedicinePrices($request->medicine_id);
+            // 1. Ambil semua history harga untuk obat tersebut dari API
+            $prices = $apiService->getMedicinePrices($request->medicine_id);
+            
+            // 2. Cari harga yang valid berdasarkan tanggal pemeriksaan (examined_at)
+            $examDate = \Carbon\Carbon::parse($prescription->examination->examined_at);
+            $resolvedPrice = $pricingService->resolveByDate($prices, $examDate);
 
-            $validPrice = $this->pricingService->resolveByDate(
-                $prices, 
-                $prescription->examined_at 
-            );
+            // Validasi: Jika harga tidak ditemukan atau 0
+            if (!$resolvedPrice || $resolvedPrice['unit_price'] <= 0) {
+                throw new \Exception('Price not found for this medicine on the examination date.');
+            }
 
-            return DB::transaction(function () use ($request, $prescription, $validPrice) {
-                $item = $prescription->items()
-                    ->where('medicine_id', $request->medicine_id)
-                    ->first();
+            // 3. Ambil Nama Obat
+            $medicines = $apiService->getMedicines();
+            $medicineData = collect($medicines)->firstWhere('id', $request->medicine_id);
+            $medicineName = $medicineData['name'] ?? 'Unknown Medicine';
 
-                if ($item) {
-                    $item->increment('quantity', $request->quantity);
+            // 4. Simpan ke database menggunakan unit_price
+            // Pastikan kolom-kolom ini ada di migration prescription_items
+            $prescription->items()->create([
+                'medicine_id'      => $request->medicine_id,
+                'medicine_name'    => $medicineName,
+                'unit_price'       => $resolvedPrice['unit_price'], // Harga satuan
+                'quantity'         => $request->quantity,
+                'total_price'      => $resolvedPrice['unit_price'] * $request->quantity, // Total bill
+                'price_start_date' => $resolvedPrice['price_start_date'] ?? null,
+                'price_end_date'   => $resolvedPrice['price_end_date'] ?? null,
+            ]);
 
-                    $item->update(['total_price' => $item->quantity * $item->unit_price]);
-                } else {
-                    $prescription->items()->create([
-                        'medicine_id'   => $request->medicine_id,
-                        'medicine_name' => $request->medicine_name,
-                        'quantity'      => $request->quantity,
-                        'unit_price'    => $validPrice['unit_price'],
-                        'total_price'   => $validPrice['unit_price'] * $request->quantity,
-                    ]);
-                }
+            return redirect()->back()->with('success', "Added $medicineName (Rp " . number_format($resolvedPrice['unit_price']) . ") to prescription.");
 
-                return response()->json(['message' => 'Item berhasil ditambahkan']);
-            });
+        } catch (\Exception $e) {
+            Log::error("Pricing Error for ID {$request->medicine_id}: " . $e->getMessage());
+            return redirect()->back()->with('error', 'Pricing Error: ' . $e->getMessage());
+        }
+    }
 
-        } catch (RuntimeException $e) {
-            return response()->json([
-                'message' => 'Gagal mendapatkan harga: ' . $e->getMessage()
-            ], 422);
+    public function removeItem($Id)
+    {
+        $item = \App\Models\PrescriptionItem::findOrFail($Id);
+        $prescription = $item->prescription;
+
+        // Proteksi: Jangan biarkan hapus jika sudah diproses apoteker
+        if ($prescription->status !== 'pending') {
+            return redirect()->back()->with('error', 'Cannot modify prescription. It is already being processed.');
+        }
+
+        $item->delete();
+        return redirect()->back()->with('success', 'Medicine removed from prescription.');
+    }
+
+    public function finish($id)
+    {
+        $prescription = Prescription::findOrFail($id);
+        
+        // Anda bisa mengubah status jika diperlukan, misalnya 'submitted' 
+        // agar apoteker tahu ini sudah final.
+        $prescription->update(['status' => 'pending']); 
+
+        return redirect()->route('doctor.examinations')
+                        ->with('success', 'Prescription for ' . $prescription->examination->patient->name . ' has been sent to pharmacy.');
+    }
+
+    private function ensurePrescriptionCanBeCreated(Examination $examination)
+    {
+        if ($examination->prescription) {
+            throw new \RuntimeException('A prescription already exists for this examination.');
         }
     }
 }

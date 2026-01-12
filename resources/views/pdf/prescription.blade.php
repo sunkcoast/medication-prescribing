@@ -19,8 +19,8 @@
 </head>
 <body>
     <div class="header">
-        <h2 style="margin:0;">RS DELTA SURYA</h2> {{-- Pastikan ejaan benar --}}
-        <p style="margin:0; font-size: 12px;">Jl. Kesehatan No. 123, Surabaya | Telp: (031) 555-0192</p>
+        <h2 style="margin:0;">RS DELTA SURYA</h2> 
+        <p style="margin:0; font-size: 12px;">Jl. Pahlawan No.9, Jati, Kec. Sidoarjo, Kabupaten Sidoarjo, Jawa Timur 61211 | Telp: (031) 8961272</p>
     </div>
 
     <table class="info-table">

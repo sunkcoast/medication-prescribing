@@ -36,20 +36,32 @@ class PrescriptionPolicy
 
     /**
      * Determine whether the user can update a prescription.
-     * Tidak boleh update manual sekarang
+     * Guideline 3b: Dokter bisa ubah selama belum dilayani apoteker (status pending)
      */
     public function update(User $user, Prescription $prescription): bool
     {
-        return false;
+        return $user->role === 'doctor' && 
+            $user->id === $prescription->doctor_id &&
+            $prescription->status === 'pending';
     }
 
     /**
-     * Determine whether the user can delete a prescription.
-     * Tidak diperbolehkan
+     * Determine whether the user can add items to a prescription.
+     * Logika sama dengan update: Hanya dokter pemilik resep & status pending
      */
-    public function delete(User $user, Prescription $prescription): bool
+    public function addItems(User $user, Prescription $prescription): bool
     {
-        return false;
+        return $this->update($user, $prescription);
+    }
+
+    /**
+     * Determine whether the user can pay a prescription.
+     * Guideline 4a: Hanya Pharmacist yang bisa melayani pembayaran
+     */
+    public function pay(User $user, Prescription $prescription): bool
+    {
+        return $user->role === 'pharmacist' && 
+            $prescription->status === 'calculated';
     }
 
     /**
@@ -68,6 +80,15 @@ class PrescriptionPolicy
     public function lock(User $user, Prescription $prescription): bool
     {
         return $user->role === 'pharmacist' && $prescription->status === 'paid';
+    }
+
+    /**
+     * Determine whether the user can delete a prescription.
+     * Tidak diperbolehkan
+     */
+    public function delete(User $user, Prescription $prescription): bool
+    {
+        return false;
     }
 
     /**
