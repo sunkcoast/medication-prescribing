@@ -34,4 +34,24 @@ class Prescription extends Model
     {
         return $this->hasOne(Payment::class);
     }
+
+    public function isPending(): bool
+    {
+        return $this->status === 'pending';
+    }
+
+    public function isCalculated(): bool
+    {
+        return $this->status === 'calculated';
+    }
+
+    public function isPaid(): bool
+    {
+        return $this->status === 'paid';
+    }
+
+    public function isLocked(): bool
+    {
+        return $this->status === 'locked';
+    }
 }
