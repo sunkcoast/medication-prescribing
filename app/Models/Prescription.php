@@ -11,14 +11,20 @@ class Prescription extends Model
 
     protected $fillable = [
         'examination_id',
+        'doctor_id',
         'pharmacist_id',
-        'medicines',
+        'examination_at',
         'status',
     ];
 
     protected $casts = [
-        'medicines' => 'array',
+        'examined_at' => 'datetime',
     ];
+
+    public function doctor()
+    {
+        return $this->belongsTo(User::class, 'doctor_id');
+    }
 
     public function examination()
     {
@@ -27,7 +33,7 @@ class Prescription extends Model
 
     public function pharmacist()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'pharmacist_id');
     }
 
     public function payment()
@@ -53,5 +59,10 @@ class Prescription extends Model
     public function isLocked(): bool
     {
         return $this->status === 'locked';
+    }
+
+    public function items()
+    {
+        return $this->hasMany(PrescriptionItem::class);
     }
 }
