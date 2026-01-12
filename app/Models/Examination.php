@@ -13,7 +13,7 @@ class Examination extends Model
         'doctor_id',
         'patient_id',
         'status',
-        'exam_time',
+        'examined_at',
         'height',
         'weight',
         'systole',
@@ -23,6 +23,10 @@ class Examination extends Model
         'temperature',
         'notes',
         'attachment',
+    ];
+
+    protected $casts = [
+        'examined_at' => 'datetime',
     ];
 
     public function doctor()

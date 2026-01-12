@@ -1,10 +1,10 @@
 <?php
 
+use App\Models\User;
+use App\Models\Examination;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
-use App\Models\Examination;
-use App\Models\User;
 
 return new class extends Migration
 {
@@ -18,11 +18,15 @@ return new class extends Migration
             $table->foreignIdFor(Examination::class)
                 ->constrained()
                 ->onDelete('cascade');
-            $table->foreignIdFor(User::class)
+            $table->foreignIdFor(User::class, 'doctor_id')
+                ->constrained()
+                ->onDelete('cascade');
+            $table->foreignIdFor(User::class, 'pharmacist_id')
                 ->nullable()
                 ->constrained()
                 ->onDelete('set null');
-            $table->json('medicines');
+            $table->dateTime('examined_at');
+            $table->dateTime('locked_at')->nullable();
             $table->enum('status', ['pending', 'served', 'paid'])->default('pending');
             $table->timestamps();
         });

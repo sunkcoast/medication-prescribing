@@ -21,7 +21,7 @@ return new class extends Migration
             $table->foreignIdFor(Patient::class)
                 ->constrained()
                 ->onDelete('cascade');
-            $table->dateTime('exam_time');
+            $table->dateTime('examined_at');
             $table->float('height')->nullable();
             $table->float('weight')->nullable();
             $table->integer('systole')->nullable();
@@ -30,7 +30,7 @@ return new class extends Migration
             $table->integer('respiration_rate')->nullable();
             $table->float('temperature')->nullable();
             $table->text('notes')->nullable();
-            $table->string('attachment')->nullable();
+            $table->string('attachment_path')->nullable();
             $table->timestamps();
         });
     }

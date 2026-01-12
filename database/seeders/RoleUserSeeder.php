@@ -20,7 +20,7 @@ class RoleUserSeeder extends Seeder
             'password' => Hash::make('password'),
             'role' => 'doctor',
         ]);
-
+    
         User::create([
             'name' => 'Apoteker Surya',
             'email' => 'pharmacist@deltasurya.com',
