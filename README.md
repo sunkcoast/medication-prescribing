@@ -1,59 +1,122 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+### 🏥 Medication Prescribing Web Application
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Aplikasi manajemen peresepan obat digital yang mengintegrasikan alur kerja **Dokter** dan **Apoteker** secara *real-time*. Dibangun menggunakan **Laravel**, dengan fokus pada keamanan data medis, validasi backend, dan integrasi API obat eksternal.
 
-## About Laravel
+### 
+<img width="1054" height="1364" alt="127 0 0 1_8000_doctor_examinations (1)" src="https://github.com/user-attachments/assets/d8d53fe2-b351-4a79-b149-b5a509404f46" />
+<img width="949" height="777" alt="127 0 0 1_8000_doctor_prescriptions_4_edit" src="https://github.com/user-attachments/assets/85399f1c-7793-47f9-9f1a-d57918922436" />
+<img width="950" height="1380" alt="127 0 0 1_8000_doctor_activity-logs" src="https://github.com/user-attachments/assets/87be3d8e-3d33-44d6-9ba5-beec65211f14" />
+<img width="950" height="819" alt="127 0 0 1_8000_pharmacist_prescriptions (1)" src="https://github.com/user-attachments/assets/586cd1ce-cd8e-4656-9ea3-a76685609117" />
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+---
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+### Panduan Instalasi (Reviewer Guide)
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+Ikuti langkah-langkah berikut untuk menyiapkan lingkungan pengembangan lokal:
 
-## Learning Laravel
+### Prasyarat Sistem:
+- Laravel Version 12
+- PHP 8.2+
+- MySQL 
+- Composer & Node.js
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+### 1️⃣ Konfigurasi Environment (`.env`)
+Salin file `.env.example` menjadi `.env`, lalu sesuaikan konfigurasi berikut. Pastikan **API Obat** terisi agar fitur sinkronisasi harga dan data obat berjalan dengan baik.
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+```
+# Database Configuration
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=medication_prescribing
+DB_USERNAME=root
+DB_PASSWORD=
 
-## Laravel Sponsors
+# Medicine API Configuration (External)
+MEDICINE_API_BASE_URL=[http://recruitment.rsdeltasurya.com/api/v1](http://recruitment.rsdeltasurya.com/api/v1)
+MEDICINE_API_TOKEN=
+MEDICINE_API_EMAIL=
+MEDICINE_API_PASSWORD=
+```
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+### 2️⃣ Setup Database & Seeding
+Jalankan perintah berikut untuk melakukan migrasi tabel dan pengisian data demo ke dalam database:
 
-### Premium Partners
+```
+php artisan migrate --seed
+```
+Note: Fitur Seeder akan otomatis membuat 10 data pasien (Factory) serta akun akses default untuk Dokter dan Apoteker.
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+### 3️⃣ Autentikasi (Laravel Breeze)
 
-## Contributing
+Aplikasi ini menggunakan Laravel Breeze untuk sistem keamanan. Gunakan kredensial hasil seeding berikut untuk menguji sistem:
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+| Role       | Email                               | Password |
+|-----------|-------------------------------------|----------|
+| doctor    | dokter@test.com          | password |
+| pharmacist| apoteker@test.com  | password |
 
-## Code of Conduct
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+## 🚀 Alur Kerja & Fitur Utama
 
-## Security Vulnerabilities
+### 🩺 Modul Dokter (Doctor)
+**Tujuan:** Mencatat hasil klinis pasien dan instruksi pengobatan.
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+**Fitur Utama:**
+* **Autentikasi Sesi:** Login aman menggunakan Laravel Breeze.
+* **Examination Input:**
+    * **Smart Selection:** Memilih pasien dari daftar *dropdown* yang tersedia. 
+    * **Waktu Pemeriksaan:** Pencatatan otomatis untuk penentuan harga obat fluktuatif.
+    * **Vital Signs Tracking:** Input lengkap: Tinggi, Berat, Tekanan Darah (Systole/Diastole), Heart Rate, Respiration Rate, dan Suhu Tubuh.
+    * **Clinical Notes:** Catatan hasil pemeriksaan berupa teks bebas.
+    * **Document Attachment:** Unggah berkas pemeriksaan luar (PDF/Image) secara opsional.
+* **Add Prescription:**
+    * **API Integration:** Pengambilan daftar obat melalui REST API eksternal.
+    * **Edit Access:** Dokter dapat mengubah resep selama belum dilayani/dibayar di apoteker.
+    * **Activity Logging:** Setiap perubahan data (pemeriksaan & resep) dicatat dalam log aktivitas.
+    * **Backend Validation:** Validasi sisi server untuk menjamin integritas data.
 
-## License
+---
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+### 💊 Modul Apoteker (Pharmacist)
+**Tujuan:** Memvalidasi resep dan memproses administrasi pembayaran.
+
+**Fitur Utama:**
+* **Autentikasi Sesi:** Login aman menggunakan Laravel Breeze.
+* **Prescription Service:** * Melihat resep yang ditulis dokter dan menghitung total pembayaran.
+    * **API Price Sync:** Mengambil data harga obat fluktuatif berdasarkan ID obat melalui API.
+* **Finalisasi & Locking:** * Memproses transaksi pembayaran pasien.
+    * Otomatis mengunci rekam medis agar tidak dapat diubah kembali oleh dokter setelah "Process Payment".
+* **Output:** Cetak resi pembayaran resmi dalam format **PDF**.
+
+---
+
+## 🔗 Integrasi API Obat
+
+Sistem telah mengimplementasikan alur integrasi API sesuai spesifikasi:
+1. **Authentication:** Menggunakan method `POST` ke `/api/v1/auth` untuk mendapatkan Bearer Token.
+2. **Medicines List:** Menggunakan method `GET` ke `/api/v1/medicines` dengan Bearer Auth.
+3. **Price Fetching:** Menggunakan method `GET` ke `/api/v1/medicines/{id}/prices` untuk mendapatkan harga real-time.
+
+---
+
+## 4️⃣ Relasi Antar Tabel (Database Relations)
+
+### 👤 User (Doctor/Pharmacist)
+* └── **$1:N$** `hasMany` → **Examination** (sebagai `doctor_id`)
+* └── **$1:N$** `hasMany` → **Prescription** (sebagai `doctor_id` / `pharmacist_id`)
+
+### 👥 Patient
+* └── **$1:N$** `hasMany` → **Examination** (Riwayat medis pasien)
+
+### 📋 Examination
+* ├── **$N:1$** `belongsTo` → **Patient**
+* ├── **$N:1$** `belongsTo` → **User** (Doctor)
+* └── **$1:1$** `hasOne` → **Prescription**
+
+### 💊 Prescription
+* ├── **$1:1$** `belongsTo` → **Examination**
+* ├── **$N:1$** `belongsTo` → **User** (Doctor)
+* ├── **$N:1$** `belongsTo` → **User** (Pharmacist)
+* ├── **$1:N$** `hasMany` → **PrescriptionItem** (Daftar rincian obat)
+* └── **$1:1$** `hasOne` → **Payment**
