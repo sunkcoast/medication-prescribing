@@ -80,6 +80,8 @@ php artisan serve
 
 Aplikasi ini menggunakan Laravel Breeze untuk sistem keamanan. Gunakan kredensial hasil seeding berikut untuk menguji sistem:
 
+Lalu access the login page at: 👉 ```http://127.0.0.1:8000/login```
+
 | Role       | Email                | Password   |
 |------------|----------------------|------------|
 | Doctor     | dokter@test.com      | password   |
