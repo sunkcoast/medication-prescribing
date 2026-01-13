@@ -4,10 +4,13 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+use App\Traits\LogsActivity;
 
 class Examination extends Model
 {
     use HasFactory;
+    use LogsActivity;
 
     protected $fillable = [
         'doctor_id',
@@ -39,8 +42,8 @@ class Examination extends Model
         return $this->belongsTo(Patient::class);
     }
 
-    public function prescriptions()
+    public function prescription(): HasOne
     {
-        return $this->hasMany(Prescription::class);
+        return $this->hasOne(Prescription::class);
     }
 }

@@ -4,16 +4,18 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Traits\LogsActivity;
 
 class Prescription extends Model
 {
     use HasFactory;
+    use LogsActivity;
 
     protected $fillable = [
         'examination_id',
         'doctor_id',
         'pharmacist_id',
-        'examination_at',
+        'examined_at',
         'status',
     ];
 
@@ -56,9 +58,9 @@ class Prescription extends Model
         return $this->status === 'paid';
     }
 
-    public function isLocked(): bool
+    public function isServed(): bool
     {
-        return $this->status === 'locked';
+        return $this->status === 'served';
     }
 
     public function items()

@@ -12,6 +12,7 @@ class PatientFactory extends Factory
     public function definition()
     {
         return [
+            'id' => $this->faker->unique()->numberBetween(1000, 9999),
             'name' => $this->faker->name(),
             'date_of_birth' => $this->faker->date(),
             'gender' => $this->faker->randomElement(['male', 'female']),

@@ -27,7 +27,7 @@ return new class extends Migration
                 ->onDelete('set null');
             $table->dateTime('examined_at');
             $table->dateTime('locked_at')->nullable();
-            $table->enum('status', ['pending', 'served', 'paid'])->default('pending');
+            $table->enum('status', ['pending', 'calculated', 'served', 'paid'])->default('pending');
             $table->timestamps();
         });
     }

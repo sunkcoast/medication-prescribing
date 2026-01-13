@@ -4,23 +4,38 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
+use App\Http\Controllers\ActivityLogController;
 
 class RoleMiddleware
 {
     /**
      * Handle an incoming request.
      *
-     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
+     * @return \Symfony\Component\HttpFoundation\Response
      */
     public function handle(Request $request, Closure $next, ...$roles): Response
     {
-        if (! auth()->check()) {
-            abort(401);
+        if (!Auth::check()) {
+            return redirect()->route('login');
         }
 
-        if (! in_array(auth()->user()->role, $roles)) {
-            abort(403);
+        $user = Auth::user();
+
+        if (!in_array($user->role, $roles)) {
+            
+            if ($user->role === 'doctor') {
+                return redirect()->route('doctor.examinations')
+                    ->with('error', 'Anda tidak memiliki akses ke halaman apoteker.');
+            }
+
+            if ($user->role === 'pharmacist') {
+                return redirect()->route('pharmacist.prescriptions.index')
+                    ->with('error', 'Anda tidak memiliki akses ke halaman dokter.');
+            }
+
+            abort(403, 'Unauthorized action.');
         }
 
         return $next($request);
