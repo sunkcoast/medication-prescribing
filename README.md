@@ -7,6 +7,7 @@ Aplikasi manajemen peresepan obat digital yang mengintegrasikan alur kerja **Dok
 <img width="949" height="777" alt="127 0 0 1_8000_doctor_prescriptions_4_edit" src="https://github.com/user-attachments/assets/85399f1c-7793-47f9-9f1a-d57918922436" />
 <img width="950" height="1380" alt="127 0 0 1_8000_doctor_activity-logs" src="https://github.com/user-attachments/assets/87be3d8e-3d33-44d6-9ba5-beec65211f14" />
 <img width="950" height="819" alt="127 0 0 1_8000_pharmacist_prescriptions (1)" src="https://github.com/user-attachments/assets/586cd1ce-cd8e-4656-9ea3-a76685609117" />
+<img width="995" height="497" alt="127 0 0 1_8000_pharmacist_pdf" src="https://github.com/user-attachments/assets/b024b6bc-3780-47e3-85a2-5a1fb0c44386" />
 
 ---
 
@@ -51,10 +52,10 @@ Note: Fitur Seeder akan otomatis membuat 10 data pasien (Factory) serta akun aks
 
 Aplikasi ini menggunakan Laravel Breeze untuk sistem keamanan. Gunakan kredensial hasil seeding berikut untuk menguji sistem:
 
-| Role       | Email                               | Password |
-|-----------|-------------------------------------|----------|
-| doctor    | dokter@test.com          | password |
-| pharmacist| apoteker@test.com  | password |
+| Role       | Email                | Password   |
+|------------|----------------------|------------|
+| Doctor     | dokter@test.com      | password   |
+| Pharmacist | apoteker@test.com    | password   |
 
 
 ## 🚀 Alur Kerja & Fitur Utama
@@ -73,8 +74,8 @@ Aplikasi ini menggunakan Laravel Breeze untuk sistem keamanan. Gunakan kredensia
 * **Add Prescription:**
     * **API Integration:** Pengambilan daftar obat melalui REST API eksternal.
     * **Edit Access:** Dokter dapat mengubah resep selama belum dilayani/dibayar di apoteker.
-    * **Activity Logging:** Setiap perubahan data (pemeriksaan & resep) dicatat dalam log aktivitas.
     * **Backend Validation:** Validasi sisi server untuk menjamin integritas data.
+* **Activity Logging:** Setiap perubahan data (dokter & apokter) dicatat dalam log aktivitas.
 
 ---
 
@@ -120,3 +121,44 @@ Sistem telah mengimplementasikan alur integrasi API sesuai spesifikasi:
 * ├── **$N:1$** `belongsTo` → **User** (Pharmacist)
 * ├── **$1:N$** `hasMany` → **PrescriptionItem** (Daftar rincian obat)
 * └── **$1:1$** `hasOne` → **Payment**
+
+### 🔄 Alur Kerja Sistem (Sequence Diagram)
+
+```mermaid
+sequenceDiagram
+    participant D as 🩺 Dokter
+    participant API as 🌐 External Medicine API
+    participant DB as 🗄️ Database
+    participant A as 💊 Apoteker
+
+    Note over D: Input Gejala & Vital Signs
+    D->>DB: Simpan Pemeriksaan (Examination)
+    D->>API: Request Daftar Obat & Harga
+    API-->>D: Data Obat Real-time
+    D->>DB: Buat Draft Resep (Prescription)
+    
+    Note over A: Cek Resep Pending
+    A->>API: Validasi Harga Terbaru
+    A->>DB: Finalisasi Pembayaran (Lock Data)
+    DB-->>A: Generate PDF Kwitansi
+    Note right of A: Rekam Medis Terkunci (Read-Only)
+```
+
+
+### 🔄 Alur Kerja Sistem (Business Logic Flow)
+
+```mermaid
+graph TD
+    A[Pasien Datang] --> B[Dokter: Input Pemeriksaan]
+    B --> C{Buat Resep?}
+    C -- Ya --> D[Dokter: Ambil Data Obat via API]
+    D --> E[Simpan Draft Resep & Item]
+    E --> F[Status: Pending]
+    F --> G[Apoteker: Verifikasi & Hitung Total]
+    G --> H[Apoteker: Proses Pembayaran]
+    H --> I[Sistem: Sinkronisasi Harga Akhir via API]
+    I --> J[Status: Paid]
+    J --> K[Locking System: Data Permanen / Read-Only]
+    K --> L[Generate PDF Kwitansi]
+    C -- Tidak --> M[Hanya Simpan Rekam Medis]
+```
