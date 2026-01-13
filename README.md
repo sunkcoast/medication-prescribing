@@ -28,7 +28,7 @@ Buka terminal Anda dan jalankan perintah berikut secara berurutan:
 
 ```bash
 # Clone repositori
-git clone [https://github.com/sunkcoast/medication-prescribing.git](https://github.com/sunkcoast/medication-prescribing.git)
+git clone https://github.com/sunkcoast/medication-prescribing.git
 
 # Masuk ke folder proyek
 cd medication-prescribing
