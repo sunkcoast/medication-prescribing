@@ -11,19 +11,40 @@ Aplikasi manajemen peresepan obat digital yang mengintegrasikan alur kerja **Dok
 
 ---
 
-### Panduan Instalasi (Reviewer Guide)
+## 🛠️ Panduan Instalasi (Reviewer Guide)
 
-Ikuti langkah-langkah berikut untuk menyiapkan lingkungan pengembangan lokal:
+Ikuti langkah-langkah di bawah ini untuk menjalankan aplikasi di lingkungan lokal Anda.
 
-### Prasyarat Sistem:
-- Laravel Version 12
-- PHP 8.2+
-- MySQL 
-- Composer & Node.js
+### Prasyarat Sistem
+* **PHP:** 8.2 atau lebih tinggi
+* **Laravel:** 12.x
+* **Database:** MySQL / MariaDB
+* **Package Manager:** Composer
+
+---
+
+### 0️⃣ Clone & Instalasi Library
+Buka terminal Anda dan jalankan perintah berikut secara berurutan:
+
+```bash
+# Clone repositori
+git clone [https://github.com/sunkcoast/medication-prescribing.git](https://github.com/sunkcoast/medication-prescribing.git)
+
+# Masuk ke folder proyek
+cd medication-prescribing
+
+# Install dependensi Laravel
+composer install
+```
 
 ### 1️⃣ Konfigurasi Environment (`.env`)
 Salin file `.env.example` menjadi `.env`, lalu sesuaikan konfigurasi berikut. Pastikan **API Obat** terisi agar fitur sinkronisasi harga dan data obat berjalan dengan baik.
 
+```
+cp .env.example .env
+php artisan key:generate
+```
+Sesuaikan nilai berikut di dalam file .env:
 ```
 # Database Configuration
 DB_CONNECTION=mysql
@@ -41,12 +62,19 @@ MEDICINE_API_PASSWORD=
 ```
 
 ### 2️⃣ Setup Database & Seeding
-Jalankan perintah berikut untuk melakukan migrasi tabel dan pengisian data demo ke dalam database:
+* Jalankan perintah berikut untuk melakukan migrasi tabel dan pengisian data demo ke dalam database:
+    * Note: Fitur Seeder akan otomatis membuat 10 data pasien (Factory) serta akun akses default untuk Dokter dan Apoteker.
 
 ```
 php artisan migrate --seed
 ```
-Note: Fitur Seeder akan otomatis membuat 10 data pasien (Factory) serta akun akses default untuk Dokter dan Apoteker.
+
+
+Jalankan server lokal:
+
+```
+php artisan serve
+```
 
 ### 3️⃣ Autentikasi (Laravel Breeze)
 
@@ -56,6 +84,12 @@ Aplikasi ini menggunakan Laravel Breeze untuk sistem keamanan. Gunakan kredensia
 |------------|----------------------|------------|
 | Doctor     | dokter@test.com      | password   |
 | Pharmacist | apoteker@test.com    | password   |
+
+### 💡 Catatan Arsitektur (Disclaimer)
+* Aplikasi ini menggunakan metode "NPM-Less" untuk mempermudah portabilitas. Anda tidak perlu menjalankan npm install atau npm run dev karena:
+    * UI Framework: Tailwind CSS (via Play CDN).
+    * Interactivity: Alpine.js (via CDN).
+    * Icons: FontAwesome (via CDN).
 
 
 ## 🚀 Alur Kerja & Fitur Utama
